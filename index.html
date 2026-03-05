@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grocery Bill</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    padding:15px;
+    background:#f5f5f5;
+}
+
+.bill{
+    max-width:500px;
+    margin:auto;
+    background:white;
+    padding:15px;
+    border-radius:8px;
+    box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+}
+
+th, td{
+    border-bottom:1px solid #ddd;
+    padding:8px;
+    text-align:left;
+}
+
+th{
+    background:#f0f0f0;
+}
+
+.total{
+    text-align:right;
+    font-weight:bold;
+    padding-top:10px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    font-size:16px;
+    border:none;
+    background:#28a745;
+    color:white;
+    border-radius:6px;
+}
+
+button:active{
+    background:#1e7e34;
+}
+
+/* Hide button when printing */
+@media print{
+    button{
+        display:none;
+    }
+    body{
+        background:white;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bill">
+
+<h2>Grocery Bill</h2>
+
+<table>
+<tr>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+</tr>
+
+<tr>
+<td>Rice</td>
+<td>2</td>
+<td>$4.00</td>
+</tr>
+
+<tr>
+<td>Milk</td>
+<td>1</td>
+<td>$1.50</td>
+</tr>
+
+<tr>
+<td>Bread</td>
+<td>1</td>
+<td>$2.00</td>
+</tr>
+
+<tr>
+<td>Eggs</td>
+<td>12</td>
+<td>$3.00</td>
+</tr>
+
+</table>
+
+<div class="total">
+Total: $10.50
+</div>
+
+<button onclick="window.printPageViaPrinter()">Print Bill via BLE Printer</button>
+
+</div>
+
+</body>
+</html>
