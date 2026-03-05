@@ -58,10 +58,16 @@ button{
     background:#28a745;
     color:white;
     border-radius:6px;
+    cursor:pointer;
 }
 
 button:active{
     background:#1e7e34;
+}
+
+button:disabled{
+    background:#ccc;
+    cursor:not-allowed;
 }
 
 /* Hide button when printing */
@@ -122,6 +128,22 @@ Total: $10.50
 <button onclick="window.printPageViaPrinter()">Print Bill via BLE Printer</button>
 
 </div>
+
+<script>
+// This function will be replaced by the injected JavaScript bridge from the React Native app
+window.printPageViaPrinter = function(htmlContent) {
+    if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'PRINT_REQUEST',
+            html: htmlContent || document.documentElement.outerHTML
+        }));
+        alert('Print request sent to app!');
+    } else {
+        alert('Not running in React Native WebView. Falling back to browser print.');
+        window.print();
+    }
+};
+</script>
 
 </body>
 </html>
