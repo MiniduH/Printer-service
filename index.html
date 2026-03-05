@@ -130,17 +130,38 @@ Total: $10.50
 </div>
 
 <script>
-// This function will be replaced by the injected JavaScript bridge from the React Native app
-window.printPageViaPrinter = function(htmlContent) {
+// Print bill content only (without button)
+window.printPageViaPrinter = function() {
+    var billContent = document.querySelector('.bill');
+    
     if (window.ReactNativeWebView) {
+        // Extract only bill HTML (without button) for React Native
+        var billHTML = '<h2>' + billContent.querySelector('h2').textContent + '</h2>' +
+                       billContent.querySelector('table').outerHTML +
+                       billContent.querySelector('.total').outerHTML;
+        
         window.ReactNativeWebView.postMessage(JSON.stringify({
             type: 'PRINT_REQUEST',
-            html: htmlContent || document.documentElement.outerHTML
+            html: billHTML
         }));
         alert('Print request sent to app!');
     } else {
-        alert('Not running in React Native WebView. Falling back to browser print.');
-        window.print();
+        // Browser print - open print dialog with only bill content
+        var printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<!DOCTYPE html>');
+        printWindow.document.write('<html><head><title>Grocery Bill</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; margin: 20px; background: white; }');
+        printWindow.document.write('h2 { text-align: center; margin-bottom: 20px; }');
+        printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
+        printWindow.document.write('th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }');
+        printWindow.document.write('th { background: #f0f0f0; }');
+        printWindow.document.write('.total { text-align: right; font-weight: bold; margin-top: 15px; }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(billContent.innerHTML.replace(/<button[\s\S]*?<\/button>/g, ''));
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
     }
 };
 </script>
