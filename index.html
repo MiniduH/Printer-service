@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grocery Bill</title>
+<title>PCN Ticket - Parkfinda</title>
 
 <style>
+:root{--blue:#092043;--deep-blue:#04233f}
 body{
-    font-family: Arial, sans-serif;
     margin:0;
     padding:15px;
+    font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
     background:#f5f5f5;
+    color:#000
 }
 
 .bill{
-    max-width:500px;
+    max-width:760px;
     margin:auto;
     background:white;
     padding:15px;
@@ -24,29 +26,88 @@ body{
 
 h2{
     text-align:center;
-    margin-bottom:10px;
+    margin:0 0 5px 0;
+    font-size:20px;
+    font-weight:700;
+}
+
+.header-info{
+    text-align:center;
+    font-size:13px;
+    color:#111;
+    margin-bottom:15px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
     font-size:14px;
+    margin-bottom:15px;
 }
 
-th, td{
-    border-bottom:1px solid #ddd;
-    padding:8px;
-    text-align:left;
+td{
+    padding:10px;
+    border:2px solid #000;
 }
 
-th{
-    background:#f0f0f0;
+td.label{
+    font-weight:700;
+    width:45%;
+    background:#fff;
 }
 
-.total{
-    text-align:right;
-    font-weight:bold;
-    padding-top:10px;
+.amount-section{
+    padding:18px;
+    border-top:6px solid #000;
+    text-align:center;
+    margin-bottom:15px;
+}
+
+.amount-label{
+    font-size:12px;
+}
+
+.amount-value{
+    font-size:22px;
+    font-weight:700;
+}
+
+.notice{
+    padding:16px;
+    border-top:2px solid #000;
+    margin-bottom:15px;
+}
+
+.notice h3{
+    text-align:center;
+    margin:6px 0;
+    font-weight:700;
+}
+
+.notice p{
+    font-size:12px;
+    text-align:justify;
+    margin:0;
+}
+
+.details{
+    padding:16px;
+    border-top:2px solid #000;
+    margin-bottom:15px;
+    font-size:12px;
+}
+
+.details h4{
+    margin:8px 0;
+    font-size:15px;
+}
+
+.details p{
+    margin:6px 0;
+}
+
+.details-indent{
+    margin-left:12px;
 }
 
 button{
@@ -70,6 +131,25 @@ button:disabled{
     cursor:not-allowed;
 }
 
+.small{
+    font-size:12px;
+}
+
+/* Mobile responsive tweaks */
+@media (max-width:480px){
+    .bill{padding:12px}
+    h2{font-size:18px}
+    table{display:table;width:100%;font-size:12px}
+    tbody{display:table-row-group}
+    tr{display:table-row}
+    td{padding:8px;border:1px solid #ccc;text-align:left}
+    td.label{font-weight:700;width:40%;background:#f5f5f5}
+    .amount-value{font-size:20px}
+    .details h4{margin:12px 0 8px 0}
+    .notice{padding:12px;font-size:11px}
+    .notice p{font-size:11px}
+}
+
 /* Hide button when printing */
 @media print{
     button{
@@ -84,81 +164,141 @@ button:disabled{
 
 <body>
 
-<div class="bill">
+<div class="bill" id="pcnContent">
 
-<h2>Grocery Bill</h2>
+<h2>Parking Charge Notice (PCN)</h2>
+<div class="header-info">
+    <p>Parkfinda Parking Limited</p>
+    <p>Elia Mews CP - 29 Nelson Terrace, London N1 8DG</p>
+</div>
 
 <table>
 <tr>
-<th>Item</th>
-<th>Qty</th>
-<th>Price</th>
+<td class="label">PCN Number</td>
+<td>PF-2026-000123</td>
 </tr>
-
 <tr>
-<td>Rice</td>
-<td>2</td>
-<td>$4.00</td>
+<td class="label">Date of this notice</td>
+<td>2026-03-13</td>
 </tr>
-
 <tr>
-<td>Milk</td>
-<td>1</td>
-<td>$1.50</td>
+<td class="label">Vehicle Registration Number</td>
+<td>ABC1234</td>
 </tr>
-
 <tr>
-<td>Bread</td>
-<td>1</td>
-<td>$2.00</td>
+<td class="label">Make</td>
+<td>Toyota</td>
 </tr>
-
 <tr>
-<td>Eggs</td>
-<td>12</td>
-<td>$3.00</td>
+<td class="label">Model</td>
+<td>-</td>
 </tr>
-
+<tr>
+<td class="label">Colour</td>
+<td>Blue</td>
+</tr>
+<tr>
+<td class="label">Location</td>
+<td class="small">Elia Mews CP - 29 Nelson Terrace, London N1 8DG</td>
+</tr>
+<tr>
+<td class="label">Parking contravention</td>
+<td class="small">Parked beyond permitted time</td>
+</tr>
+<tr>
+<td class="label">Time & Date of the contravention</td>
+<td>2026-03-13 09:32</td>
+</tr>
+<tr>
+<td class="label">Parking Attendant</td>
+<td>Attendant 001</td>
+</tr>
 </table>
 
-<div class="total">
-Total: $10.50
+<div class="amount-section">
+<p class="amount-label">Full Amount of the Parking Charge Notice:</p>
+<div class="amount-value">£ 100.00</div>
 </div>
 
-<button onclick="window.printPageViaPrinter()">Print Bill via BLE Printer</button>
+<div class="notice">
+<h3>DO NOT IGNORE THIS NOTICE</h3>
+<p>A parking charge notice of <strong>£100.00</strong> is payable and must be paid before the end of 28 days after the date of when this notice was given. If the charge is paid before the end of the period of <strong>14</strong> days of the date when this notice was given, the amount of the charge will be reduced to <strong>£60.00</strong>. If payment is not made within a period of 28 days, we may take court action or use debt recovery methods to recover the debt.</p>
+</div>
+
+<div class="details">
+<p style="text-align:justify;margin-bottom:12px">The contravention is a Breach of the terms and conditions of use of the parking facility. Signs are clearly displayed throughout the area showing these terms and conditions. The Parking Attendant who had reason to believe that the following contravention had occurred and a Parking Charge Notice is now payable.</p>
+
+<h4>How To Make Payment</h4>
+<p>Online: <a href="https://www.paypcsl.co.uk" target="_blank">https://www.paypcsl.co.uk</a></p>
+<p>Debit or Credit Card: 0208 528 4122 / 0141 301 2358</p>
+
+<div style="margin-top:12px">
+<p style="font-weight:700">Bank Transfer:</p>
+<p class="details-indent">Account Name – Parking Collection Services</p>
+<p class="details-indent">Account Number – 20973851</p>
+<p class="details-indent">Sort Code – 16-00-01</p>
+</div>
+</div>
+
+<button onclick="window.printPageViaPrinter()">Print PCN Ticket via BLE Printer</button>
 
 </div>
 
 <script>
-// Print bill content only (without button)
+// Print PCN ticket content (without button)
 window.printPageViaPrinter = function() {
-    var billContent = document.querySelector('.bill');
+    var pcnContent = document.querySelector('#pcnContent');
     
     if (window.ReactNativeWebView) {
-        // Extract only bill HTML (without button) for React Native
-        var billHTML = '<h2>' + billContent.querySelector('h2').textContent + '</h2>' +
-                       billContent.querySelector('table').outerHTML +
-                       billContent.querySelector('.total').outerHTML;
+        // Extract only PCN HTML (without button) for React Native
+        var pcnHTML = pcnContent.innerHTML.replace(/<button[\s\S]*?<\/button>/g, '');
         
         window.ReactNativeWebView.postMessage(JSON.stringify({
             type: 'PRINT_REQUEST',
-            html: billHTML
+            html: pcnHTML
         }));
         alert('Print request sent to app!');
     } else {
-        // Browser print - open print dialog with only bill content
-        var printWindow = window.open('', '', 'height=600,width=800');
+        // Browser print - open print dialog with only PCN content
+        var printWindow = window.open('', '', 'height=600,width=400');
         printWindow.document.write('<!DOCTYPE html>');
-        printWindow.document.write('<html><head><title>Grocery Bill</title>');
+        printWindow.document.write('<html><head><meta charset="utf-8"><title>PCN Ticket</title>');
         printWindow.document.write('<style>');
-        printWindow.document.write('body { font-family: Arial, sans-serif; margin: 20px; background: white; }');
-        printWindow.document.write('h2 { text-align: center; margin-bottom: 20px; }');
-        printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
-        printWindow.document.write('th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }');
-        printWindow.document.write('th { background: #f0f0f0; }');
-        printWindow.document.write('.total { text-align: right; font-weight: bold; margin-top: 15px; }');
+        printWindow.document.write('body { margin:0; padding:5mm; font-family:Arial; width:11cm; font-size:10px; background:white; }');
+        printWindow.document.write('h2 { text-align:center; font-size:14px; margin:0 0 4mm 0; font-weight:bold; }');
+        printWindow.document.write('.header { text-align:center; font-size:9px; margin-bottom:3mm; }');
+        printWindow.document.write('.header p { margin:0; }');
+        printWindow.document.write('table { width:100%; border-collapse:collapse; margin-bottom:3mm; }');
+        printWindow.document.write('td { padding:2mm; border:0.5px solid #000; font-size:9px; }');
+        printWindow.document.write('.label { font-weight:bold; width:45%; }');
+        printWindow.document.write('.amount { text-align:center; padding:3mm; border-top:1px solid #000; margin-bottom:3mm; }');
+        printWindow.document.write('.amount-value { font-size:16px; font-weight:bold; }');
+        printWindow.document.write('.notice { font-size:8px; margin-bottom:3mm; padding:2mm; border-top:1px solid #000; }');
+        printWindow.document.write('.notice h3 { text-align:center; margin:0 0 2mm 0; font-size:10px; font-weight:bold; }');
+        printWindow.document.write('.notice p { margin:1mm 0; font-size:8px; line-height:1.2; }');
+        printWindow.document.write('.details { font-size:8px; margin-bottom:3mm; padding-top:2mm; border-top:1px solid #000; }');
+        printWindow.document.write('.details p { margin:1mm 0; font-size:8px; line-height:1.2; }');
         printWindow.document.write('</style></head><body>');
-        printWindow.document.write(billContent.innerHTML.replace(/<button[\s\S]*?<\/button>/g, ''));
+        
+        printWindow.document.write('<h2>Parking Charge Notice</h2>');
+        printWindow.document.write('<div class="header"><p>Parkfinda Parking Limited</p><p>Elia Mews CP - 29 Nelson Terrace</p></div>');
+        printWindow.document.write('<table>');
+        printWindow.document.write('<tr><td class="label">PCN Number</td><td>PF-2026-000123</td></tr>');
+        printWindow.document.write('<tr><td class="label">Date</td><td>2026-03-13</td></tr>');
+        printWindow.document.write('<tr><td class="label">Vehicle Reg</td><td>ABC1234</td></tr>');
+        printWindow.document.write('<tr><td class="label">Make</td><td>Toyota</td></tr>');
+        printWindow.document.write('<tr><td class="label">Colour</td><td>Blue</td></tr>');
+        printWindow.document.write('<tr><td class="label">Location</td><td>Elia Mews CP</td></tr>');
+        printWindow.document.write('<tr><td class="label">Contravention</td><td>Parked beyond permitted time</td></tr>');
+        printWindow.document.write('<tr><td class="label">Time &amp; Date</td><td>2026-03-13 09:32</td></tr>');
+        printWindow.document.write('<tr><td class="label">Attendant</td><td>Attendant 001</td></tr>');
+        printWindow.document.write('</table>');
+        
+        printWindow.document.write('<div class="amount"><p>Full Amount Due:</p><div class="amount-value">£ 100.00</div></div>');
+        printWindow.document.write('<div class="notice"><h3>DO NOT IGNORE</h3><p>Payment due within 28 days. Pay within 14 days for £60 reduction.</p></div>');
+        printWindow.document.write('<div class="details"><p><strong>Payment Methods:</strong></p>');
+        printWindow.document.write('<p>Online: paypcsl.co.uk<br/>Phone: 0208 528 4122<br/>Bank A/C: 20973851</p></div>');
+        
         printWindow.document.write('</body></html>');
         printWindow.document.close();
         printWindow.print();
