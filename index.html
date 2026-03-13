@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PCN Ticket - Parkfinda</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
 :root{--blue:#092043;--deep-blue:#04233f}
@@ -131,6 +132,24 @@ button:disabled{
     cursor:not-allowed;
 }
 
+.status{
+    padding:10px;
+    margin-top:10px;
+    border-radius:5px;
+    text-align:center;
+    font-size:14px;
+}
+
+.status.success{
+    background:#d4edda;
+    color:#155724;
+}
+
+.status.error{
+    background:#f8d7da;
+    color:#721c24;
+}
+
 .small{
     font-size:12px;
 }
@@ -150,9 +169,9 @@ button:disabled{
     .notice p{font-size:11px}
 }
 
-/* Hide button when printing */
+/* Hide button and status when printing */
 @media print{
-    button{
+    button, .status{
         display:none;
     }
     body{
@@ -240,70 +259,111 @@ button:disabled{
 </div>
 </div>
 
-<button onclick="window.printPageViaPrinter()">Print PCN Ticket via BLE Printer</button>
+<button id="printBtn" onclick="printToThermalPrinter()">🖨️ Print PCN via BLE Printer</button>
+
+<div id="status"></div>
 
 </div>
 
 <script>
-// Print PCN ticket content (without button)
-window.printPageViaPrinter = function() {
-    var pcnContent = document.querySelector('#pcnContent');
+// Convert HTML to image and send to React Native
+async function printToThermalPrinter() {
+    const btn = document.getElementById('printBtn');
+    const status = document.getElementById('status');
     
-    if (window.ReactNativeWebView) {
-        // Extract only PCN HTML (without button) for React Native
-        var pcnHTML = pcnContent.innerHTML.replace(/<button[\s\S]*?<\/button>/g, '');
+    try {
+        btn.disabled = true;
+        btn.textContent = '⏳ Processing...';
+        status.textContent = '';
+        status.className = 'status';
+
+        const element = document.getElementById('pcnContent');
         
-        window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'PRINT_REQUEST',
-            html: pcnHTML
-        }));
-        alert('Print request sent to app!');
-    } else {
-        // Browser print - open print dialog with only PCN content
-        var printWindow = window.open('', '', 'height=600,width=400');
-        printWindow.document.write('<!DOCTYPE html>');
-        printWindow.document.write('<html><head><meta charset="utf-8"><title>PCN Ticket</title>');
-        printWindow.document.write('<style>');
-        printWindow.document.write('body { margin:0; padding:5mm; font-family:Arial; width:11cm; font-size:10px; background:white; }');
-        printWindow.document.write('h2 { text-align:center; font-size:14px; margin:0 0 4mm 0; font-weight:bold; }');
-        printWindow.document.write('.header { text-align:center; font-size:9px; margin-bottom:3mm; }');
-        printWindow.document.write('.header p { margin:0; }');
-        printWindow.document.write('table { width:100%; border-collapse:collapse; margin-bottom:3mm; }');
-        printWindow.document.write('td { padding:2mm; border:0.5px solid #000; font-size:9px; }');
-        printWindow.document.write('.label { font-weight:bold; width:45%; }');
-        printWindow.document.write('.amount { text-align:center; padding:3mm; border-top:1px solid #000; margin-bottom:3mm; }');
-        printWindow.document.write('.amount-value { font-size:16px; font-weight:bold; }');
-        printWindow.document.write('.notice { font-size:8px; margin-bottom:3mm; padding:2mm; border-top:1px solid #000; }');
-        printWindow.document.write('.notice h3 { text-align:center; margin:0 0 2mm 0; font-size:10px; font-weight:bold; }');
-        printWindow.document.write('.notice p { margin:1mm 0; font-size:8px; line-height:1.2; }');
-        printWindow.document.write('.details { font-size:8px; margin-bottom:3mm; padding-top:2mm; border-top:1px solid #000; }');
-        printWindow.document.write('.details p { margin:1mm 0; font-size:8px; line-height:1.2; }');
-        printWindow.document.write('</style></head><body>');
+        // Create a clone to remove button before capture
+        const clone = element.cloneNode(true);
+        const cloneBtn = clone.querySelector('#printBtn');
+        const cloneStatus = clone.querySelector('#status');
+        if (cloneBtn) cloneBtn.remove();
+        if (cloneStatus) cloneStatus.remove();
         
-        printWindow.document.write('<h2>Parking Charge Notice</h2>');
-        printWindow.document.write('<div class="header"><p>Parkfinda Parking Limited</p><p>Elia Mews CP - 29 Nelson Terrace</p></div>');
-        printWindow.document.write('<table>');
-        printWindow.document.write('<tr><td class="label">PCN Number</td><td>PF-2026-000123</td></tr>');
-        printWindow.document.write('<tr><td class="label">Date</td><td>2026-03-13</td></tr>');
-        printWindow.document.write('<tr><td class="label">Vehicle Reg</td><td>ABC1234</td></tr>');
-        printWindow.document.write('<tr><td class="label">Make</td><td>Toyota</td></tr>');
-        printWindow.document.write('<tr><td class="label">Colour</td><td>Blue</td></tr>');
-        printWindow.document.write('<tr><td class="label">Location</td><td>Elia Mews CP</td></tr>');
-        printWindow.document.write('<tr><td class="label">Contravention</td><td>Parked beyond permitted time</td></tr>');
-        printWindow.document.write('<tr><td class="label">Time &amp; Date</td><td>2026-03-13 09:32</td></tr>');
-        printWindow.document.write('<tr><td class="label">Attendant</td><td>Attendant 001</td></tr>');
-        printWindow.document.write('</table>');
-        
-        printWindow.document.write('<div class="amount"><p>Full Amount Due:</p><div class="amount-value">£ 100.00</div></div>');
-        printWindow.document.write('<div class="notice"><h3>DO NOT IGNORE</h3><p>Payment due within 28 days. Pay within 14 days for £60 reduction.</p></div>');
-        printWindow.document.write('<div class="details"><p><strong>Payment Methods:</strong></p>');
-        printWindow.document.write('<p>Online: paypcsl.co.uk<br/>Phone: 0208 528 4122<br/>Bank A/C: 20973851</p></div>');
-        
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.print();
+        // Temporarily add clone to document for rendering
+        clone.style.position = 'absolute';
+        clone.style.left = '-9999px';
+        document.body.appendChild(clone);
+
+        // Generate image with html2canvas
+        const canvas = await html2canvas(clone, {
+            backgroundColor: '#ffffff',
+            scale: 2,
+            width: 384,      // Standard thermal printer width (48mm ≈ 384px at 200dpi)
+            height: null,    // Auto height based on content
+            logging: false,
+            useCORS: true,
+            allowTaint: true,
+        });
+
+        // Remove clone
+        document.body.removeChild(clone);
+
+        // Convert canvas to base64 PNG
+        const base64Image = canvas.toDataURL('image/png');
+
+        // Send to React Native App
+        if (window.ReactNativeWebView) {
+            // Method 1: WebView postMessage (React Native WebView component)
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'PRINT_IMAGE',
+                imageData: base64Image,
+                timestamp: new Date().toISOString(),
+                title: 'PCN Ticket'
+            }));
+            
+            status.className = 'status success';
+            status.textContent = '✓ Image sent to printer! Check your mobile app.';
+            btn.textContent = '✓ Sent!';
+            
+        } else if (window.parent && window.parent !== window) {
+            // Method 2: Iframe postMessage (if embedded in iframe)
+            window.parent.postMessage({
+                type: 'PRINT_IMAGE',
+                imageData: base64Image,
+                timestamp: new Date().toISOString(),
+                title: 'PCN Ticket'
+            }, '*');
+            
+            status.className = 'status success';
+            status.textContent = '✓ Image sent to printer!';
+            btn.textContent = '✓ Sent!';
+            
+        } else {
+            throw new Error('React Native WebView not available. Please open in mobile app.');
+        }
+
+        // Reset button after 3 seconds
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.textContent = '🖨️ Print PCN via BLE Printer';
+        }, 3000);
+
+    } catch (error) {
+        console.error('Print error:', error);
+        status.className = 'status error';
+        status.textContent = `✗ Error: ${error.message}`;
+        btn.disabled = false;
+        btn.textContent = '🖨️ Print PCN via BLE Printer';
     }
-};
+}
+
+// Keyboard shortcut: Press 'P' to print
+document.addEventListener('keydown', (e) => {
+    if ((e.key === 'p' || e.key === 'P') && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        printToThermalPrinter();
+    }
+});
+
+// Legacy function for backward compatibility
+window.printPageViaPrinter = printToThermalPrinter;
 </script>
 
 </body>
