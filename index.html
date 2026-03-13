@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PCN Ticket - Parkfinda</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
 :root{--blue:#092043;--deep-blue:#04233f}
@@ -266,7 +268,7 @@ button:disabled{
 </div>
 
 <script>
-// Convert HTML to image and send to React Native
+// Convert HTML to PDF and send to React Native
 async function printToThermalPrinter() {
     const btn = document.getElementById('printBtn');
     const status = document.getElementById('status');
@@ -279,60 +281,42 @@ async function printToThermalPrinter() {
 
         const element = document.getElementById('pcnContent');
         
-        // Create a clone to remove button before capture
-        const clone = element.cloneNode(true);
-        const cloneBtn = clone.querySelector('#printBtn');
-        const cloneStatus = clone.querySelector('#status');
-        if (cloneBtn) cloneBtn.remove();
-        if (cloneStatus) cloneStatus.remove();
+        // Generate PDF from HTML
+        const opt = {
+            margin: 5,
+            filename: 'pcn-ticket.pdf',
+            image: { type: 'png', quality: 0.98 },
+            html2canvas: { scale: 2, width: 384 },
+            jsPDF: { orientation: 'portrait', unit: 'mm', format: [80, 200] }
+        };
         
-        // Temporarily add clone to document for rendering
-        clone.style.position = 'absolute';
-        clone.style.left = '-9999px';
-        document.body.appendChild(clone);
-
-        // Generate image with html2canvas
-        const canvas = await html2canvas(clone, {
-            backgroundColor: '#ffffff',
-            scale: 2,
-            width: 384,      // Standard thermal printer width (48mm ≈ 384px at 200dpi)
-            height: null,    // Auto height based on content
-            logging: false,
-            useCORS: true,
-            allowTaint: true,
-        });
-
-        // Remove clone
-        document.body.removeChild(clone);
-
-        // Convert canvas to base64 PNG
-        const base64Image = canvas.toDataURL('image/png');
+        // Convert to PDF and get base64 data URI
+        const pdf = await html2pdf().set(opt).from(element).output('datauristring');
 
         // Send to React Native App
         if (window.ReactNativeWebView) {
-            // Method 1: WebView postMessage (React Native WebView component)
             window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'PRINT_IMAGE',
-                imageData: base64Image,
+                type: 'PRINT_PDF',
+                data: pdf,
                 timestamp: new Date().toISOString(),
                 title: 'PCN Ticket'
             }));
             
             status.className = 'status success';
-            status.textContent = '✓ Image sent to printer! Check your mobile app.';
+            status.textContent = '✓ PDF sent to printer! Check your mobile app.';
             btn.textContent = '✓ Sent!';
             
         } else if (window.parent && window.parent !== window) {
-            // Method 2: Iframe postMessage (if embedded in iframe)
+            // Iframe postMessage
             window.parent.postMessage({
-                type: 'PRINT_IMAGE',
-                imageData: base64Image,
+                type: 'PRINT_PDF',
+                data: pdf,
                 timestamp: new Date().toISOString(),
                 title: 'PCN Ticket'
             }, '*');
             
             status.className = 'status success';
-            status.textContent = '✓ Image sent to printer!';
+            status.textContent = '✓ PDF sent to printer!';
             btn.textContent = '✓ Sent!';
             
         } else {
