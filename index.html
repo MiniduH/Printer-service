@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PCN Ticket - Parkfinda</title>
+
+<!-- Only html2canvas is needed for thermal printer -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
 :root{--blue:#092043;--deep-blue:#04233f}
@@ -25,6 +25,14 @@ body{
     padding:15px;
     border-radius:8px;
     box-shadow:0 0 5px rgba(0,0,0,0.1);
+}
+
+#pcnContent {
+    width: 576px !important;     /* Fixed width for thermal printer */
+    max-width: 576px !important;
+    margin: 0 auto;
+    background: white;
+    box-shadow: none;
 }
 
 h2{
@@ -160,15 +168,10 @@ button:disabled{
 @media (max-width:480px){
     .bill{padding:12px}
     h2{font-size:18px}
-    table{display:table;width:100%;font-size:12px}
-    tbody{display:table-row-group}
-    tr{display:table-row}
-    td{padding:8px;border:1px solid #ccc;text-align:left}
-    td.label{font-weight:700;width:40%;background:#f5f5f5}
+    table{font-size:12px}
+    td{padding:8px;border:1px solid #ccc}
+    td.label{width:40%;background:#f5f5f5}
     .amount-value{font-size:20px}
-    .details h4{margin:12px 0 8px 0}
-    .notice{padding:12px;font-size:11px}
-    .notice p{font-size:11px}
 }
 
 /* Hide button and status when printing */
@@ -185,142 +188,143 @@ button:disabled{
 
 <body>
 
-<div class="bill" id="pcnContent">
+<div class="bill">
+    <div id="pcnContent">
 
-<h2>Parking Charge Notice (PCN)</h2>
-<div class="header-info">
-    <p>Parkfinda Parking Limited</p>
-    <p>Elia Mews CP - 29 Nelson Terrace, London N1 8DG</p>
-</div>
+        <h2>Parking Charge Notice (PCN)</h2>
+        <div class="header-info">
+            <p>Parkfinda Parking Limited</p>
+            <p>Elia Mews CP - 29 Nelson Terrace, London N1 8DG</p>
+        </div>
 
-<table>
-<tr>
-<td class="label">PCN Number</td>
-<td>PF-2026-000123</td>
-</tr>
-<tr>
-<td class="label">Date of this notice</td>
-<td>2026-03-13</td>
-</tr>
-<tr>
-<td class="label">Vehicle Registration Number</td>
-<td>ABC1234</td>
-</tr>
-<tr>
-<td class="label">Make</td>
-<td>Toyota</td>
-</tr>
-<tr>
-<td class="label">Model</td>
-<td>-</td>
-</tr>
-<tr>
-<td class="label">Colour</td>
-<td>Blue</td>
-</tr>
-<tr>
-<td class="label">Location</td>
-<td class="small">Elia Mews CP - 29 Nelson Terrace, London N1 8DG</td>
-</tr>
-<tr>
-<td class="label">Parking contravention</td>
-<td class="small">Parked beyond permitted time</td>
-</tr>
-<tr>
-<td class="label">Time & Date of the contravention</td>
-<td>2026-03-13 09:32</td>
-</tr>
-<tr>
-<td class="label">Parking Attendant</td>
-<td>Attendant 001</td>
-</tr>
-</table>
+        <table>
+        <tr>
+            <td class="label">PCN Number</td>
+            <td>PF-2026-000123</td>
+        </tr>
+        <tr>
+            <td class="label">Date of this notice</td>
+            <td>2026-03-13</td>
+        </tr>
+        <tr>
+            <td class="label">Vehicle Registration Number</td>
+            <td>ABC1234</td>
+        </tr>
+        <tr>
+            <td class="label">Make</td>
+            <td>Toyota</td>
+        </tr>
+        <tr>
+            <td class="label">Model</td>
+            <td>-</td>
+        </tr>
+        <tr>
+            <td class="label">Colour</td>
+            <td>Blue</td>
+        </tr>
+        <tr>
+            <td class="label">Location</td>
+            <td class="small">Elia Mews CP - 29 Nelson Terrace, London N1 8DG</td>
+        </tr>
+        <tr>
+            <td class="label">Parking contravention</td>
+            <td class="small">Parked beyond permitted time</td>
+        </tr>
+        <tr>
+            <td class="label">Time & Date of the contravention</td>
+            <td>2026-03-13 09:32</td>
+        </tr>
+        <tr>
+            <td class="label">Parking Attendant</td>
+            <td>Attendant 001</td>
+        </tr>
+        </table>
 
-<div class="amount-section">
-<p class="amount-label">Full Amount of the Parking Charge Notice:</p>
-<div class="amount-value">£ 100.00</div>
-</div>
+        <div class="amount-section">
+            <p class="amount-label">Full Amount of the Parking Charge Notice:</p>
+            <div class="amount-value">£ 100.00</div>
+        </div>
 
-<div class="notice">
-<h3>DO NOT IGNORE THIS NOTICE</h3>
-<p>A parking charge notice of <strong>£100.00</strong> is payable and must be paid before the end of 28 days after the date of when this notice was given. If the charge is paid before the end of the period of <strong>14</strong> days of the date when this notice was given, the amount of the charge will be reduced to <strong>£60.00</strong>. If payment is not made within a period of 28 days, we may take court action or use debt recovery methods to recover the debt.</p>
-</div>
+        <div class="notice">
+            <h3>DO NOT IGNORE THIS NOTICE</h3>
+            <p>A parking charge notice of <strong>£100.00</strong> is payable and must be paid before the end of 28 days after the date of when this notice was given. If the charge is paid before the end of the period of <strong>14</strong> days of the date when this notice was given, the amount of the charge will be reduced to <strong>£60.00</strong>. If payment is not made within a period of 28 days, we may take court action or use debt recovery methods to recover the debt.</p>
+        </div>
 
-<div class="details">
-<p style="text-align:justify;margin-bottom:12px">The contravention is a Breach of the terms and conditions of use of the parking facility. Signs are clearly displayed throughout the area showing these terms and conditions. The Parking Attendant who had reason to believe that the following contravention had occurred and a Parking Charge Notice is now payable.</p>
+        <div class="details">
+            <p style="text-align:justify;margin-bottom:12px">The contravention is a Breach of the terms and conditions of use of the parking facility. Signs are clearly displayed throughout the area showing these terms and conditions. The Parking Attendant who had reason to believe that the following contravention had occurred and a Parking Charge Notice is now payable.</p>
 
-<h4>How To Make Payment</h4>
-<p>Online: <a href="https://www.paypcsl.co.uk" target="_blank">https://www.paypcsl.co.uk</a></p>
-<p>Debit or Credit Card: 0208 528 4122 / 0141 301 2358</p>
+            <h4>How To Make Payment</h4>
+            <p>Online: <a href="https://www.paypcsl.co.uk" target="_blank">https://www.paypcsl.co.uk</a></p>
+            <p>Debit or Credit Card: 0208 528 4122 / 0141 301 2358</p>
 
-<div style="margin-top:12px">
-<p style="font-weight:700">Bank Transfer:</p>
-<p class="details-indent">Account Name – Parking Collection Services</p>
-<p class="details-indent">Account Number – 20973851</p>
-<p class="details-indent">Sort Code – 16-00-01</p>
-</div>
+            <div style="margin-top:12px">
+                <p style="font-weight:700">Bank Transfer:</p>
+                <p class="details-indent">Account Name – Parking Collection Services</p>
+                <p class="details-indent">Account Number – 20973851</p>
+                <p class="details-indent">Sort Code – 16-00-01</p>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <button id="printBtn" onclick="printToThermalPrinter()">🖨️ Print PCN via BLE Printer</button>
 
 <div id="status"></div>
 
-</div>
-
 <script>
-// Convert HTML to PDF and send to React Native
+// === FINAL PRINT FUNCTION FOR UNITECH SP419U THERMAL PRINTER ===
 async function printToThermalPrinter() {
     const btn = document.getElementById('printBtn');
     const status = document.getElementById('status');
     
     try {
         btn.disabled = true;
-        btn.textContent = '⏳ Processing...';
+        btn.textContent = '⏳ Generating high-quality image...';
         status.textContent = '';
         status.className = 'status';
 
         const element = document.getElementById('pcnContent');
-        
-        // Generate PDF from HTML
-        const opt = {
-            margin: 5,
-            filename: 'pcn-ticket.pdf',
-            image: { type: 'png', quality: 0.98 },
-            html2canvas: { scale: 2, width: 384 },
-            jsPDF: { orientation: 'portrait', unit: 'mm', format: [80, 200] }
-        };
-        
-        // Convert to PDF and get base64 data URI
-        const pdf = await html2pdf().set(opt).from(element).output('datauristring');
 
-        // Send to React Native App
+        // Generate sharp PNG optimized for thermal printer
+        const canvas = await html2canvas(element, {
+            scale: 3,                    // High resolution for crisp text and tables
+            width: 576,                  // Fixed width (ideal for 80mm / 4" thermal paper)
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            allowTaint: true
+        });
+
+        // Remove data URL prefix → pure base64
+        const base64Image = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+
+        // Send to React Native WebView
         if (window.ReactNativeWebView) {
             window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'PRINT_PDF',
-                data: pdf,
-                timestamp: new Date().toISOString(),
-                title: 'PCN Ticket'
+                type: 'PRINT_IMAGE',
+                base64Image: base64Image,
+                imageWidth: 576
             }));
             
             status.className = 'status success';
-            status.textContent = '✓ PDF sent to printer! Check your mobile app.';
-            btn.textContent = '✓ Sent!';
-            
-        } else if (window.parent && window.parent !== window) {
-            // Iframe postMessage
+            status.textContent = '✓ Image sent to BLE printer!';
+            btn.textContent = '✓ Sent successfully!';
+        } 
+        else if (window.parent && window.parent !== window) {
+            // For testing inside iframe
             window.parent.postMessage({
-                type: 'PRINT_PDF',
-                data: pdf,
-                timestamp: new Date().toISOString(),
-                title: 'PCN Ticket'
+                type: 'PRINT_IMAGE',
+                base64Image: base64Image,
+                imageWidth: 576
             }, '*');
             
             status.className = 'status success';
-            status.textContent = '✓ PDF sent to printer!';
+            status.textContent = '✓ Image sent!';
             btn.textContent = '✓ Sent!';
-            
-        } else {
-            throw new Error('React Native WebView not available. Please open in mobile app.');
+        } 
+        else {
+            throw new Error('Please open this page inside the React Native WebView app');
         }
 
         // Reset button after 3 seconds
@@ -346,7 +350,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Legacy function for backward compatibility
+// For backward compatibility
 window.printPageViaPrinter = printToThermalPrinter;
 </script>
 
