@@ -1,369 +1,669 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PCN Ticket - Parkfinda</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCN Ticket - Parkfinda</title>
 
-<!-- Only html2canvas is needed for thermal printer -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Only html2canvas is needed for thermal printer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-<style>
-:root{--blue:#092043;--deep-blue:#04233f}
-body{
-    margin:0;
-    padding:15px;
-    font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-    background:#f5f5f5;
-    color:#000
-}
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-.bill{
-    max-width:760px;
-    margin:auto;
-    background:white;
-    padding:15px;
-    border-radius:8px;
-    box-shadow:0 0 5px rgba(0,0,0,0.1);
-}
+        body {
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            background: #f5f5f5;
+            padding: 15px;
+            color: #000;
+        }
 
-#pcnContent {
-    width: 576px !important;     /* Fixed width for thermal printer */
-    max-width: 576px !important;
-    margin: 0 auto;
-    background: white;
-    box-shadow: none;
-}
+        /* ── Outer wrapper (matches .bill) ── */
+        .bill {
+            max-width: 760px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
 
-h2{
-    text-align:center;
-    margin:0 0 5px 0;
-    font-size:20px;
-    font-weight:700;
-}
+        /* ── Responsive print target ── */
+        #pcnContent {
+            width: 100%;
+            max-width: 576px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: none;
+        }
 
-.header-info{
-    text-align:center;
-    font-size:13px;
-    color:#111;
-    margin-bottom:15px;
-}
+        /* ═══════════════════════════════════
+     PCN HEADER  (border-b-2 border-black)
+  ═══════════════════════════════════ */
+        .pcn-header {
+            background: white;
+            color: black;
+            padding: 16px;
+            text-align: center;
+            border-bottom: 2px solid black;
+        }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:14px;
-    margin-bottom:15px;
-}
+        .pcn-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
 
-td{
-    padding:10px;
-    border:2px solid #000;
-}
+        .pcn-header .company {
+            font-size: 13px;
+            font-weight: 600;
+        }
 
-td.label{
-    font-weight:700;
-    width:45%;
-    background:#fff;
-}
+        .pcn-header .address {
+            font-size: 13px;
+        }
 
-.amount-section{
-    padding:18px;
-    border-top:6px solid #000;
-    text-align:center;
-    margin-bottom:15px;
-}
+        /* ═══════════════════════════════════
+     DETAILS TABLE  (border-2 border-black)
+  ═══════════════════════════════════ */
+        .table-wrap {
+            background: white;
+            padding: 0 16px 16px;
+        }
 
-.amount-label{
-    font-size:12px;
-}
+        .pcn-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            border: 2px solid black;
+            margin-bottom: 0;
+        }
 
-.amount-value{
-    font-size:22px;
-    font-weight:700;
-}
+        .pcn-table tr {
+            border-bottom: 2px solid black;
+        }
 
-.notice{
-    padding:16px;
-    border-top:2px solid #000;
-    margin-bottom:15px;
-}
+        .pcn-table tr:last-child {
+            border-bottom: none;
+        }
 
-.notice h3{
-    text-align:center;
-    margin:6px 0;
-    font-weight:700;
-}
+        .pcn-table td {
+            padding: 8px;
+            border: none;
+        }
 
-.notice p{
-    font-size:12px;
-    text-align:justify;
-    margin:0;
-}
+        .pcn-table td.label {
+            width: 50%;
+            border-right: 2px solid black;
+            font-weight: 700;
+            background: white;
+        }
 
-.details{
-    padding:16px;
-    border-top:2px solid #000;
-    margin-bottom:15px;
-    font-size:12px;
-}
+        .pcn-table td.value {
+            text-align: center;
+            background: white;
+        }
 
-.details h4{
-    margin:8px 0;
-    font-size:15px;
-}
+        .pcn-table td.value.small {
+            font-size: 11px;
+        }
 
-.details p{
-    margin:6px 0;
-}
+        /* ═══════════════════════════════════
+     AMOUNT SECTION  (border-t-4 border-black)
+  ═══════════════════════════════════ */
+        .amount-section {
+            background: white;
+            color: black;
+            padding: 16px;
+            text-align: center;
+            border-top: 4px solid black;
+        }
 
-.details-indent{
-    margin-left:12px;
-}
+        .amount-section p {
+            font-size: 15px;
+            line-height: 1.5;
+        }
 
-button{
-    width:100%;
-    padding:12px;
-    margin-top:15px;
-    font-size:16px;
-    border:none;
-    background:#28a745;
-    color:white;
-    border-radius:6px;
-    cursor:pointer;
-}
+        .amount-section .amount-value {
+            font-weight: 700;
+            font-size: 20px;
+        }
 
-button:active{
-    background:#1e7e34;
-}
+        /* ═══════════════════════════════════
+     DO NOT IGNORE  (border-t-2 border-black)
+  ═══════════════════════════════════ */
+        .notice {
+            background: white;
+            color: black;
+            padding: 16px;
+            border-top: 2px solid black;
+        }
 
-button:disabled{
-    background:#ccc;
-    cursor:not-allowed;
-}
+        .notice h3 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
 
-.status{
-    padding:10px;
-    margin-top:10px;
-    border-radius:5px;
-    text-align:center;
-    font-size:14px;
-}
+        .notice p {
+            font-size: 11px;
+            text-align: justify;
+        }
 
-.status.success{
-    background:#d4edda;
-    color:#155724;
-}
+        /* ═══════════════════════════════════
+     CONTRAVENTION DETAILS  (border-t-2 border-black)
+  ═══════════════════════════════════ */
+        .contravention {
+            background: white;
+            color: black;
+            padding: 16px;
+            border-top: 2px solid black;
+            font-size: 11px;
+            text-align: justify;
+        }
 
-.status.error{
-    background:#f8d7da;
-    color:#721c24;
-}
+        .contravention p+p {
+            margin-top: 12px;
+        }
 
-.small{
-    font-size:12px;
-}
+        /* ═══════════════════════════════════
+     HOW TO MAKE PAYMENT  (border-t-4 border-black)
+  ═══════════════════════════════════ */
+        .payment {
+            background: white;
+            color: black;
+            padding: 16px;
+            border-top: 4px solid black;
+        }
 
-/* Mobile responsive tweaks */
-@media (max-width:480px){
-    .bill{padding:12px}
-    h2{font-size:18px}
-    table{font-size:12px}
-    td{padding:8px;border:1px solid #ccc}
-    td.label{width:40%;background:#f5f5f5}
-    .amount-value{font-size:20px}
-}
+        .payment h3 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
 
-/* Hide button and status when printing */
-@media print{
-    button, .status{
-        display:none;
-    }
-    body{
-        background:white;
-    }
-}
-</style>
+        .payment p {
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .payment p:last-child {
+            margin-bottom: 0;
+        }
+
+        .payment .indent {
+            margin-left: 16px;
+        }
+
+        .payment em {
+            font-style: italic;
+        }
+
+        /* ═══════════════════════════════════
+     HOW TO APPEAL  (border-t-4 border-black)
+  ═══════════════════════════════════ */
+        .appeal {
+            background: white;
+            color: black;
+            padding: 16px;
+            border-top: 4px solid black;
+        }
+
+        .appeal h3 {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .appeal p {
+            font-size: 11px;
+            text-align: justify;
+            margin-bottom: 12px;
+        }
+
+        .appeal p:last-child {
+            margin-bottom: 0;
+        }
+
+        .appeal a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        .highlight {
+            background: #fde047;
+            color: black;
+            padding: 0 3px;
+        }
+
+        /* ═══════════════════════════════════
+     COMPLAINTS  (border-t-2 border-black)
+  ═══════════════════════════════════ */
+        .complaints {
+            background: white;
+            color: black;
+            padding: 16px;
+            border-top: 2px solid black;
+        }
+
+        .complaints h3 {
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .complaints p {
+            font-size: 11px;
+            text-align: justify;
+            margin-bottom: 12px;
+        }
+
+        .complaints p:last-child {
+            margin-bottom: 0;
+        }
+
+        .complaints a {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        /* ═══════════════════════════════════
+     PRIVATE PROPERTY  (border-t-4 border-black)
+  ═══════════════════════════════════ */
+        .private-property {
+            background: white;
+            color: black;
+            padding: 16px;
+            text-align: center;
+            border-top: 4px solid black;
+        }
+
+        .private-property h3 {
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        /* ═══════════════════════════════════
+     FOOTER  (border-t-2 border-black)
+  ═══════════════════════════════════ */
+        .footer {
+            background: white;
+            color: black;
+            padding: 16px;
+            border-top: 2px solid black;
+        }
+
+        .footer .managed-by {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .footer .company-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: black;
+        }
+
+        .footer .trading-as {
+            font-size: 13px;
+            color: #555;
+            margin-left: 16px;
+        }
+
+        .footer .brand {
+            font-size: 17px;
+            font-weight: 600;
+            color: black;
+            margin-left: 16px;
+        }
+
+        .footer .logos {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .footer .logos img {
+            width: 64px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        /* ── Print button & status ── */
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 16px;
+            border: none;
+            background: #28a745;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:active {
+            background: #1e7e34;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        @media print {
+
+            button,
+            .status {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="bill">
-    <div id="pcnContent">
+    <div class="bill">
+        <div id="pcnContent">
 
-        <h2>Parking Charge Notice (PCN)</h2>
-        <div class="header-info">
-            <p>Parkfinda Parking Limited</p>
-            <p>Elia Mews CP - 29 Nelson Terrace, London N1 8DG</p>
-        </div>
-
-        <table>
-        <tr>
-            <td class="label">PCN Number</td>
-            <td>PF-2026-000123</td>
-        </tr>
-        <tr>
-            <td class="label">Date of this notice</td>
-            <td>2026-03-13</td>
-        </tr>
-        <tr>
-            <td class="label">Vehicle Registration Number</td>
-            <td>ABC1234</td>
-        </tr>
-        <tr>
-            <td class="label">Make</td>
-            <td>Toyota</td>
-        </tr>
-        <tr>
-            <td class="label">Model</td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td class="label">Colour</td>
-            <td>Blue</td>
-        </tr>
-        <tr>
-            <td class="label">Location</td>
-            <td class="small">Elia Mews CP - 29 Nelson Terrace, London N1 8DG</td>
-        </tr>
-        <tr>
-            <td class="label">Parking contravention</td>
-            <td class="small">Parked beyond permitted time</td>
-        </tr>
-        <tr>
-            <td class="label">Time & Date of the contravention</td>
-            <td>2026-03-13 09:32</td>
-        </tr>
-        <tr>
-            <td class="label">Parking Attendant</td>
-            <td>Attendant 001</td>
-        </tr>
-        </table>
-
-        <div class="amount-section">
-            <p class="amount-label">Full Amount of the Parking Charge Notice:</p>
-            <div class="amount-value">£ 100.00</div>
-        </div>
-
-        <div class="notice">
-            <h3>DO NOT IGNORE THIS NOTICE</h3>
-            <p>A parking charge notice of <strong>£100.00</strong> is payable and must be paid before the end of 28 days after the date of when this notice was given. If the charge is paid before the end of the period of <strong>14</strong> days of the date when this notice was given, the amount of the charge will be reduced to <strong>£60.00</strong>. If payment is not made within a period of 28 days, we may take court action or use debt recovery methods to recover the debt.</p>
-        </div>
-
-        <div class="details">
-            <p style="text-align:justify;margin-bottom:12px">The contravention is a Breach of the terms and conditions of use of the parking facility. Signs are clearly displayed throughout the area showing these terms and conditions. The Parking Attendant who had reason to believe that the following contravention had occurred and a Parking Charge Notice is now payable.</p>
-
-            <h4>How To Make Payment</h4>
-            <p>Online: <a href="https://www.paypcsl.co.uk" target="_blank">https://www.paypcsl.co.uk</a></p>
-            <p>Debit or Credit Card: 0208 528 4122 / 0141 301 2358</p>
-
-            <div style="margin-top:12px">
-                <p style="font-weight:700">Bank Transfer:</p>
-                <p class="details-indent">Account Name – Parking Collection Services</p>
-                <p class="details-indent">Account Number – 20973851</p>
-                <p class="details-indent">Sort Code – 16-00-01</p>
+            <!-- PCN Header -->
+            <div class="pcn-header">
+                <h2>Parking Charge Notice (PCN)</h2>
+                <p class="company">Parkfinda Parking Limited</p>
+                <p class="address">Elia Mews CP - 29 Nelson Terrace, London N1 8DG</p>
             </div>
+
+            <!-- PCN Details Table -->
+            <div class="table-wrap">
+                <table class="pcn-table">
+                    <tbody>
+                        <tr>
+                            <td class="label">PCN Number</td>
+                            <td class="value">PF-2026-000123</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Date of this notice</td>
+                            <td class="value">2026-03-13</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Vehicle Registration Number</td>
+                            <td class="value">ABC1234</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Make</td>
+                            <td class="value">Toyota</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Model</td>
+                            <td class="value">-</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Colour</td>
+                            <td class="value">Blue</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Location</td>
+                            <td class="value small">Elia Mews CP - 29 Nelson Terrace, London N1 8DG</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Parking contravention</td>
+                            <td class="value">Parked beyond permitted time</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Time &amp; Date of the contravention</td>
+                            <td class="value">2026-03-13 09:32</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Parking Attendant</td>
+                            <td class="value">Attendant 001</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Amount Section -->
+            <div class="amount-section">
+                <p>Full Amount of the Parking Charge Notice: <br><span class="amount-value">£ 100.00</span></p>
+            </div>
+
+            <!-- Do Not Ignore Notice -->
+            <div class="notice">
+                <h3>DO NOT IGNORE THIS NOTICE</h3>
+                <p>
+                    A parking charge notice of <strong>£100.00</strong> is payable and must be paid before the end of 28
+                    days after the date of when this notice was given. If the charge is paid before the end of the
+                    period of <strong>14</strong> days of the date when this notice was given, the amount of the charge
+                    will be reduced to <strong>£60.00</strong>. If payment is not made within a period of 28 days, we
+                    may take court action or use debt recovery methods to recover the debt, which may incur extra
+                    recovery charges.
+                </p>
+            </div>
+
+            <!-- Contravention Details -->
+            <div class="contravention">
+                <p>
+                    The contravention is a Breach of the terms and conditions of use of the parking facility. Signs are
+                    clearly displayed throughout the area showing these terms and conditions.
+                </p>
+                <p>
+                    The Parking Attendant who had reason to believe that the following contravention had occurred and a
+                    Parking Charge Notice is now payable, we request that you pay the full outstanding amount as noted
+                    above or make an appeal within 28 days, you cannot do both. If not paid on or before the end of the
+                    28-day period as specified on the notice or successfully challenged, the Parking Collection Services
+                    may serve a Notice to Keeper (NTK) on the owner of the vehicle requiring payment of the on behalf of
+                    Parkfinda Parking Limited (Creditor). If payment or appeal is not received, we may contact the DVLA
+                    to request details of the registered keeper and may forward a Notice in the post.
+                </p>
+            </div>
+
+            <!-- How To Make Payment -->
+            <div class="payment">
+                <h3>How To Make Payment</h3>
+                <p><strong>Online:</strong> at <a href="https://www.paypcsl.co.uk"
+                        target="_blank">https://www.paypcsl.co.uk</a> follow the link for online payment.</p>
+                <p><strong>Debit or Credit Card:</strong> 0208 528 4122 / 0141 301 2358</p>
+                <p><strong>Bank Transfer:</strong></p>
+                <p class="indent">Account Name – Parking Collection Services</p>
+                <p class="indent">Account Number – 20973851</p>
+                <p class="indent">Sort Code – 16-00-01</p>
+                <p class="indent"><em>(please include your reference number when making payment)</em></p>
+            </div>
+
+            <!-- How To Appeal -->
+            <div class="appeal">
+                <h3>How To Appeal</h3>
+                <p>
+                    Should you wish to dispute the issuing of this Notice, you can do so online at <a
+                        href="https://www.paypcsl.co.uk/appeals" target="_blank">https://www.paypcsl.co.uk/appeals</a>.
+                    All appeals must be directed to Parking Collection Services in the first instance. Appeals will be
+                    responded to within 28 days. You have a right to appeal to the Independent Appeals Service, POPLA
+                    only after the Parking Collection Services appeals process has been exhausted. We will send you a
+                    POPLA code should we reject your appeal. If the Notice is issued in Scotland and Northern Ireland,
+                    only the driver may appeal to POPLA. <span class="highlight">The discounted rate will not be
+                        available if appealing to POPLA</span>
+                </p>
+                <p>
+                    If appeal is made within 28 days of receiving the parking charge, the right to pay at the rate
+                    applicable when the appeal was made will stand for a further 14 days from the date you receive
+                    notification that the appeal has been rejected.
+                </p>
+            </div>
+
+            <!-- Complaints -->
+            <div class="complaints">
+                <h3>Complaints</h3>
+                <p>
+                    Please note: if you wish to challenge the validity of this charge you must use the appeals procedure
+                    detailed above. Other issues can be dealt with under the <a
+                        href="https://parkfinda.com/complaint-policy" target="_blank">complaints</a> procedure. If you
+                    wish to complain, you MUST complain to us directly in the first instance by writing to us at the
+                    contact details provided. If you are not satisfied with our response then you may refer your
+                    complaint to the BPA. Further details can be found at <a href="http://www.britishparking.co.uk/"
+                        target="_blank">http://www.britishparking.co.uk/</a>.
+                </p>
+                <p><strong>Complaints Policy:</strong> <a href="https://parkfinda.com/complaint-policy"
+                        target="_blank">https://parkfinda.com/complaint-policy</a></p>
+            </div>
+
+            <!-- Private Property Notice -->
+            <div class="private-property">
+                <h3>This land is private property</h3>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p class="managed-by">Managed and operated by:</p>
+                <p class="company-name">Parkfinda Parking Limited</p>
+                <p class="trading-as">Trading as</p>
+                <p class="brand">Parkfinda</p>
+                
+            </div>
+
         </div>
-
     </div>
-</div>
 
-<button id="printBtn" onclick="printToThermalPrinter()">🖨️ Print PCN via BLE Printer</button>
+    <button id="printBtn" onclick="printToThermalPrinter()">🖨️ Print PCN via BLE Printer</button>
 
-<div id="status"></div>
+    <div id="status"></div>
 
-<script>
-// Converts canvas pixels → ESC/POS GS v 0 raster bytes (what thermal printers actually understand)
-function canvasToEscPos(canvas) {
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-    const pixels = ctx.getImageData(0, 0, width, height).data;
-    const widthBytes = Math.ceil(width / 8);
-    const bytes = [];
+    <script>
+        // Converts canvas pixels → ESC/POS GS v 0 raster bytes (what thermal printers actually understand)
+        function canvasToEscPos(canvas) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const pixels = ctx.getImageData(0, 0, width, height).data;
+            const widthBytes = Math.ceil(width / 8);
+            const bytes = [];
 
-    bytes.push(0x1B, 0x40);            // ESC @ — Init
-    bytes.push(0x1B, 0x61, 0x01);      // ESC a 1 — Center align
-    bytes.push(                         // GS v 0 — Raster image
-        0x1D, 0x76, 0x30, 0x00,
-        widthBytes & 0xFF, (widthBytes >> 8) & 0xFF,
-        height & 0xFF,     (height >> 8)     & 0xFF
-    );
+            bytes.push(0x1B, 0x40);            // ESC @ — Init
+            bytes.push(0x1B, 0x61, 0x01);      // ESC a 1 — Center align
+            bytes.push(                         // GS v 0 — Raster image
+                0x1D, 0x76, 0x30, 0x00,
+                widthBytes & 0xFF, (widthBytes >> 8) & 0xFF,
+                height & 0xFF, (height >> 8) & 0xFF
+            );
 
-    for (let y = 0; y < height; y++) {
-        for (let bx = 0; bx < widthBytes; bx++) {
-            let byte = 0;
-            for (let bit = 0; bit < 8; bit++) {
-                const x = bx * 8 + bit;
-                if (x < width) {
-                    const i = (y * width + x) * 4;
-                    const gray = 0.299 * pixels[i] + 0.587 * pixels[i+1] + 0.114 * pixels[i+2];
-                    if (gray < 128) byte |= (0x80 >> bit);
+            for (let y = 0; y < height; y++) {
+                for (let bx = 0; bx < widthBytes; bx++) {
+                    let byte = 0;
+                    for (let bit = 0; bit < 8; bit++) {
+                        const x = bx * 8 + bit;
+                        if (x < width) {
+                            const i = (y * width + x) * 4;
+                            const gray = 0.299 * pixels[i] + 0.587 * pixels[i + 1] + 0.114 * pixels[i + 2];
+                            if (gray < 128) byte |= (0x80 >> bit);
+                        }
+                    }
+                    bytes.push(byte);
                 }
             }
-            bytes.push(byte);
-        }
-    }
 
-    bytes.push(0x0A, 0x0A, 0x0A);     // Line feeds
-    bytes.push(0x1D, 0x56, 0x00);     // Full cut
-    return bytes;
-}
-
-function bytesToBase64(bytes) {
-    const T = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-    let r = '', i = 0, n = bytes.length;
-    while (i < n) {
-        const b0=bytes[i++], b1=i<n?bytes[i++]:0, b2=i<n?bytes[i++]:0;
-        r += T[b0>>2]+T[((b0&3)<<4)|(b1>>4)]+
-             (i-1<n||i-2<n?T[((b1&15)<<2)|(b2>>6)]:'=')+
-             (i-1<n?T[b2&63]:'=');
-    }
-    return r;
-}
-
-async function printToThermalPrinter() {
-    const btn = document.getElementById('printBtn');
-    const status = document.getElementById('status');
-    try {
-        btn.disabled = true;
-        btn.textContent = '⏳ Generating print data…';
-
-        const canvas = await html2canvas(document.getElementById('pcnContent'), {
-            scale: 1,               // 1px = 1 printer dot (576 dots wide = ~72mm on 80mm paper)
-            width: 576,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false
-        });
-
-        const escposBytes = canvasToEscPos(canvas);
-        const base64Bytes = bytesToBase64(escposBytes);
-
-        if (window.ReactNativeWebView) {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'PRINT_ESCPOS',       // ← matches what the app listens for
-                base64Bytes: base64Bytes
-            }));
-            status.className = 'status success';
-            status.textContent = '✓ Sent to printer!';
-            btn.textContent = '✓ Sent!';
-        } else {
-            throw new Error('Open this page inside the React Native app');
+            bytes.push(0x0A, 0x0A, 0x0A);     // Line feeds
+            bytes.push(0x1D, 0x56, 0x00);     // Full cut
+            return bytes;
         }
 
-        setTimeout(() => { btn.disabled=false; btn.textContent='🖨️ Print PCN via BLE Printer'; }, 3000);
-    } catch(e) {
-        status.className = 'status error';
-        status.textContent = '✗ ' + e.message;
-        btn.disabled = false;
-        btn.textContent = '🖨️ Print PCN via BLE Printer';
-    }
-}
+        function bytesToBase64(bytes) {
+            const T = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+            let r = '', i = 0, n = bytes.length;
+            while (i < n) {
+                const b0 = bytes[i++], b1 = i < n ? bytes[i++] : 0, b2 = i < n ? bytes[i++] : 0;
+                r += T[b0 >> 2] + T[((b0 & 3) << 4) | (b1 >> 4)] +
+                    (i - 1 < n || i - 2 < n ? T[((b1 & 15) << 2) | (b2 >> 6)] : '=') +
+                    (i - 1 < n ? T[b2 & 63] : '=');
+            }
+            return r;
+        }
 
-window.printPageViaPrinter = printToThermalPrinter;
-</script>
+        async function printToThermalPrinter() {
+            const btn = document.getElementById('printBtn');
+            const status = document.getElementById('status');
+            const pcnContent = document.getElementById('pcnContent');
+
+            try {
+                btn.disabled = true;
+                btn.textContent = '⏳ Generating print data…';
+
+                // Temporarily lock width to 576px for exact thermal printer rendering formatting
+                const originalWidth = pcnContent.style.width;
+                const originalMaxWidth = pcnContent.style.maxWidth;
+                pcnContent.style.width = '576px';
+                pcnContent.style.maxWidth = '576px';
+
+                const canvas = await html2canvas(pcnContent, {
+                    scale: 1,               // 1px = 1 printer dot (576 dots wide = ~72mm on 80mm paper)
+                    width: 576,
+                    windowWidth: 576,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
+
+                // Restore responsive width
+                pcnContent.style.width = originalWidth;
+                pcnContent.style.maxWidth = originalMaxWidth;
+
+                const escposBytes = canvasToEscPos(canvas);
+                const base64Bytes = bytesToBase64(escposBytes);
+
+                if (window.ReactNativeWebView) {
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                        type: 'PRINT_ESCPOS',       // ← matches what the app listens for
+                        base64Bytes: base64Bytes
+                    }));
+                    status.className = 'status success';
+                    status.textContent = '✓ Sent to printer!';
+                    btn.textContent = '✓ Sent!';
+                } else {
+                    throw new Error('Open this page inside the React Native app');
+                }
+
+                setTimeout(() => { btn.disabled = false; btn.textContent = '🖨️ Print PCN via BLE Printer'; }, 3000);
+            } catch (e) {
+                status.className = 'status error';
+                status.textContent = '✗ ' + e.message;
+                btn.disabled = false;
+                btn.textContent = '🖨️ Print PCN via BLE Printer';
+            }
+        }
+
+        window.printPageViaPrinter = printToThermalPrinter;
+    </script>
 
 
 </body>
+
 </html>
